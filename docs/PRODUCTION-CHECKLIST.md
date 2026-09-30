@@ -12,9 +12,10 @@ Use before first production cutover. Do **not** put real secrets in this file.
 - [ ] `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` set (Storage)
 - [ ] Buckets `public-media` and `private-documents` exist / creatable
 - [ ] Admin Auth user exists; `users.supabase_user_id` matches Auth UUID; `role=ADMIN`
-- [ ] Cloudflare Pages: `VITE_API_BASE_URL` = Render origin
-- [ ] Cloudflare Pages: `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY` (anon only)
-- [ ] Backend `CORS_ORIGINS` includes Pages HTTPS origin
+- [ ] Cloudflare Workers: `VITE_API_BASE_URL` = Render origin
+- [ ] Cloudflare Workers: `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY` (anon only)
+- [ ] `frontend/wrangler.jsonc` has `not_found_handling: single-page-application` (no `_redirects`)
+- [ ] Backend `CORS_ORIGINS` includes Worker HTTPS origin
 - [ ] No secrets in git / frontend / Cloudflare beyond public `VITE_*`
 
 ## Smoke tests after deploy
@@ -25,7 +26,7 @@ Use before first production cutover. Do **not** put real secrets in this file.
 - [ ] Admin: upload product cover → URL on Supabase Storage (not `/storage/...` local)
 - [ ] Admin: create/confirm donation or expense still works
 - [ ] Soft-delete / archive still works
-- [ ] Hard refresh deep link on Pages (e.g. `/products/...`) — SPA `_redirects` OK
+- [ ] Hard refresh deep link (e.g. `/products/...`) — SPA via Workers `not_found_handling` OK
 
 ## Security
 
@@ -40,11 +41,11 @@ Use before first production cutover. Do **not** put real secrets in this file.
 - [ ] PM2 / Node cluster
 - [ ] Load balancer / multiple API replicas
 - [ ] PostgreSQL Docker in production
-- [ ] CDN tuning beyond Cloudflare Pages defaults
+- [ ] CDN tuning beyond Cloudflare Workers Static Assets defaults
 - [ ] Full load-test suite at 100 concurrent RPS
 
 ## Rollback readiness
 
 - [ ] Know how to redeploy previous Render build
-- [ ] Know how to rollback Cloudflare Pages deployment
+- [ ] Know how to rollback Cloudflare Workers deployment
 - [ ] Supabase backup / recovery path understood

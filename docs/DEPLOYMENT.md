@@ -4,14 +4,14 @@
 
 | Layer | Technology | Host |
 |-------|------------|------|
-| Frontend | React + Vite + TypeScript | **Cloudflare Pages** (static) |
+| Frontend | React + Vite + TypeScript | **Cloudflare Workers Static Assets** (SPA) |
 | Backend | Node.js + Express + TypeScript | **Render** (Docker) |
 | Database | PostgreSQL | **Supabase** (managed) — not in Docker |
 | Auth | Supabase Auth JWT (HS256) | **Supabase** |
 | File storage | Supabase Storage buckets | **Supabase** — not local disk |
 
 ```
-Browser → Cloudflare Pages (SPA)
+Browser → Cloudflare Workers (static SPA from frontend/dist)
        → Render API (Docker) → Supabase Postgres (pooler)
                              → Supabase Storage
        → Supabase Auth (admin sign-in) → JWT → Render /api/admin/*
@@ -32,7 +32,7 @@ Set in Render Dashboard (never commit values):
 | `PORT` | yes | Render injects `PORT`; Dockerfile default `3000` |
 | `DATABASE_URL` | yes | Supabase **Transaction** pooler `:6543` + `?pgbouncer=true&schema=public` |
 | `DIRECT_URL` | yes | Supabase **Session** pooler `:5432` + `?schema=public` (Prisma migrate) |
-| `CORS_ORIGINS` | yes | Cloudflare Pages origin(s), comma-separated |
+| `CORS_ORIGINS` | yes | Cloudflare Worker / frontend origin(s), comma-separated |
 | `SUPABASE_URL` | yes | Project URL |
 | `SUPABASE_ANON_KEY` | optional | Backend may leave empty; FE uses its own anon key |
 | `SUPABASE_SERVICE_ROLE_KEY` | yes | Storage + server-side only — **never** on frontend |
@@ -50,7 +50,7 @@ Password in connection strings: URL-encode special characters (`@` → `%40`).
 
 ---
 
-## Frontend environment (Cloudflare Pages)
+## Frontend environment (Cloudflare Workers)
 
 Public build-time variables only (`VITE_*`):
 
@@ -67,6 +67,17 @@ Public build-time variables only (`VITE_*`):
 - `SUPABASE_JWT_SECRET`
 - `DEV_ADMIN_PASSWORD`
 - any DB password
+
+SPA deep links are handled by `frontend/wrangler.jsonc`:
+
+```jsonc
+"assets": {
+  "directory": "./dist/",
+  "not_found_handling": "single-page-application"
+}
+```
+
+Do **not** use `public/_redirects` (`/* /index.html 200`) on Workers Static Assets — it causes an infinite-loop reject.
 
 ---
 
@@ -107,16 +118,16 @@ Manual alternative: create a Web Service → Docker → point to `backend/Docker
 
 ---
 
-## Cloudflare Pages configuration
+## Cloudflare Workers (Static Assets) configuration
 
-1. Connect the GitHub repo (or upload `frontend/dist`).
-2. **Root directory:** `frontend`
-3. **Build command:** `npm ci && npm run build`
-4. **Build output directory:** `dist`
-5. **Environment variables:** `VITE_API_BASE_URL`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`
-6. SPA routing: `frontend/public/_redirects` → `/* /index.html 200` (copied into `dist` on build)
+1. Connect the GitHub repo; set application root to `frontend` (where `wrangler.jsonc` lives).
+2. **Build command:** `npm ci && npm run build`
+3. **Assets directory:** `./dist/` (see `wrangler.jsonc` → `assets.directory`)
+4. **SPA:** `assets.not_found_handling = "single-page-application"` (React Router / BrowserRouter)
+5. **Environment variables (build):** `VITE_API_BASE_URL`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`
+6. No Worker `main` script required for static-only SPA.
 
-CORS on backend must include the Pages HTTPS origin.
+CORS on backend must include the Worker HTTPS origin.
 
 ---
 
@@ -165,8 +176,8 @@ Unsafe on prod: `migrate reset`, `db push`, `migrate dev`.
 2. Configure Supabase Auth admin + `users` row.
 3. Configure Storage buckets + backend Storage env.
 4. Deploy backend on Render with env vars; wait for `/health` = `{ "status": "ok" }`.
-5. Set Cloudflare Pages `VITE_*` to the Render URL + Supabase public keys; build & deploy frontend.
-6. Set `CORS_ORIGINS` to the Pages URL; redeploy backend if needed.
+5. Set Cloudflare Workers build `VITE_*` to the Render URL + Supabase public keys; build & deploy frontend.
+6. Set `CORS_ORIGINS` to the Worker URL; redeploy backend if needed.
 7. Smoke-test: public home, product list, admin login (Supabase), upload cover image.
 
 ---
@@ -184,7 +195,7 @@ Failure usually means DB connectivity or process crash (check Render logs / miss
 
 ## Basic rollback
 
-1. **Frontend:** redeploy previous Cloudflare Pages deployment.
+1. **Frontend:** redeploy previous Cloudflare Workers version.
 2. **Backend:** redeploy previous Render image/commit.
 3. **Database:** restore from Supabase backup / PITR if a bad migration shipped (avoid destructive migrations).
 4. Keep a known-good `DATABASE_URL` / secrets in a password manager — not in git.
