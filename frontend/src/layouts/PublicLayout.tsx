@@ -65,14 +65,7 @@ export function PublicLayout() {
                   lineHeight: 1.2,
                 }}
               >
-                Quỹ In Sách
-              </Typography>
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                sx={{ display: { xs: 'none', sm: 'block' } }}
-              >
-                Lan tỏa đạo đức làm người
+                Quỹ in sách đạo đức cho mọi người
               </Typography>
             </Box>
 
@@ -153,7 +146,7 @@ export function PublicLayout() {
       >
         <Container maxWidth="lg">
           <Typography variant="body2" color="text.secondary" textAlign="center">
-            Quỹ In Sách – Lan tỏa đạo đức làm người.
+            Quỹ in sách đạo đức cho mọi người
           </Typography>
         </Container>
       </Box>

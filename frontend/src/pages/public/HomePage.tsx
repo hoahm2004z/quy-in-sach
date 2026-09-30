@@ -84,18 +84,7 @@ export function HomePage() {
                 lineHeight: 1.15,
               }}
             >
-              Quỹ In Sách
-            </Typography>
-            <Typography
-              variant="h5"
-              sx={{
-                fontFamily: '"Literata", serif',
-                fontWeight: 500,
-                opacity: 0.95,
-                fontSize: { xs: '1.15rem', md: '1.45rem' },
-              }}
-            >
-              Lan tỏa đạo đức làm người
+              Quỹ in sách đạo đức cho mọi người
             </Typography>
             <Typography variant="body1" sx={{ opacity: 0.9, maxWidth: 560 }}>
               Theo dõi sách đang in, sách đã phát hành, loa pháp thoại và toàn bộ
