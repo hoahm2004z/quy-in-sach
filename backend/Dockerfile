@@ -1,7 +1,8 @@
 # Multi-stage production image for Express + Prisma (Supabase Postgres outside the container).
 # Build context: backend/
+# Node 22+ required by @supabase/* (native WebSocket).
 
-FROM node:20-bookworm-slim AS deps
+FROM node:22-bookworm-slim AS deps
 WORKDIR /app
 RUN apt-get update -y && apt-get install -y --no-install-recommends openssl ca-certificates \
   && rm -rf /var/lib/apt/lists/*
@@ -10,7 +11,7 @@ COPY prisma ./prisma
 RUN npm ci
 RUN npx prisma generate
 
-FROM node:20-bookworm-slim AS build
+FROM node:22-bookworm-slim AS build
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY package.json package-lock.json tsconfig.json ./
@@ -18,7 +19,7 @@ COPY prisma ./prisma
 COPY src ./src
 RUN npm run build
 
-FROM node:20-bookworm-slim AS runner
+FROM node:22-bookworm-slim AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 ENV HOST=0.0.0.0
