@@ -84,7 +84,7 @@ export function HomePage() {
                 lineHeight: 1.15,
               }}
             >
-              Quỹ in sách đạo đức cho mọi người
+              Quỹ in sách chia sẻ đạo đức cho mọi người
             </Typography>
             <Typography variant="body1" sx={{ opacity: 0.9, maxWidth: 560 }}>
               Theo dõi sách đang in, sách đã phát hành, loa pháp thoại và toàn bộ
