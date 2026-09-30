@@ -30,7 +30,7 @@ function toAuthUser(user: {
  */
 export const authenticate = asyncHandler(async (req: Request, _res: Response, next: NextFunction) => {
   const token = extractBearerToken(req.headers.authorization);
-  const payload = verifySupabaseAccessToken(token);
+  const payload = await verifySupabaseAccessToken(token);
 
   const user = await prisma.user.findUnique({
     where: { supabaseUserId: payload.sub },
