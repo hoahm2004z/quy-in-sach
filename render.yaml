@@ -1,0 +1,49 @@
+# Render Blueprint — Backend API only (PostgreSQL stays on Supabase).
+# Docs: https://render.com/docs/blueprint-spec
+#
+# Set secret env vars in the Render Dashboard (do not commit secrets).
+# Root Directory should be empty (repo root); Dockerfile path is relative to root.
+
+services:
+  - type: web
+    name: quy-in-sach-api
+    runtime: docker
+    plan: starter
+    region: singapore
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    healthCheckPath: /health
+    autoDeploy: false
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: HOST
+        value: 0.0.0.0
+      - key: PORT
+        value: 3000
+      - key: DATABASE_URL
+        sync: false
+      - key: DIRECT_URL
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_JWT_SECRET
+        sync: false
+      - key: SUPABASE_PUBLIC_MEDIA_BUCKET
+        value: public-media
+      - key: SUPABASE_PRIVATE_DOCS_BUCKET
+        value: private-documents
+      - key: BODY_LIMIT
+        value: 1mb
+      - key: RATE_LIMIT_WINDOW_MS
+        value: "60000"
+      - key: RATE_LIMIT_MAX
+        value: "120"
+      - key: ALLOW_DEV_LOGIN
+        value: "false"

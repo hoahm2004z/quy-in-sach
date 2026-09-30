@@ -1,0 +1,24 @@
+# LOCAL DEVELOPMENT ONLY — do not use this Compose file for production.
+# Production PostgreSQL = Supabase; production API = Docker on Render (see render.yaml).
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: quyinsach-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: quyinsach
+      POSTGRES_PASSWORD: quyinsach
+      POSTGRES_DB: quy_in_sach
+    ports:
+      # 5433 to avoid conflict with local PostgreSQL on 5432
+      - "5433:5432"
+    volumes:
+      - quyinsach_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U quyinsach -d quy_in_sach"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  quyinsach_pgdata:

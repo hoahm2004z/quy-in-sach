@@ -1,0 +1,3 @@
+# Cloudflare Pages — SPA fallback for React Router (BrowserRouter).
+# https://developers.cloudflare.com/pages/configuration/redirects/
+/*    /index.html   200
